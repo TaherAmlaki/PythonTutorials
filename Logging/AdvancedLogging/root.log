@@ -1,0 +1,5 @@
+2021-01-16 08:50:06,495:__main__:WARNING:================
+2021-01-16 08:50:06,495:__main__:INFO:This is an INFO message.
+2021-01-16 08:50:06,495:__main__:ERROR:This is an ERROR message.
+2021-01-16 08:50:06,495:__main__:WARNING:================
+2021-01-16 08:50:06,495:__main__:INFO:User(name=Taher, account=Account(account_type=saving, account_number=1234))

@@ -1,0 +1,2 @@
+2021-01-16 08:50:06,494:Backend:INFO:Created A new Account: Account(account_type=saving, account_number=1234)
+2021-01-16 08:50:06,495:Backend:INFO:Created A new User: User(name=Taher, account=Account(account_type=saving, account_number=1234))
