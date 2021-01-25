@@ -3,14 +3,18 @@ import requests
 from pymongo import MongoClient
 import json
 from bson import ObjectId
+from dotenv import load_dotenv
+import os
 
-from MongoConfig import connection_string
+env = load_dotenv("./.env")
+connection_str = "mongodb+srv://{}:{}@cluster0.ekhk0.mongodb.net/{}?retryWrites=true&w=majority"
+cluster = MongoClient(connection_str.format(os.getenv("MONGO_DB_USERNAME"),
+                                            os.getenv("MONGO_DB_PASSWORD"),
+                                            os.getenv("MONGO_DB_NAME")))
 
+db = cluster[os.getenv("MONGO_DB_NAME")]  # getting the database
+covid_collection = db.covid  # getting the collection
 
-cluster = MongoClient(connection_string)
-
-db = cluster["mongotutorial"]  # getting the database
-covid_collection = db.covid    # getting the collection 
 
 # delete everything in the collection
 # covid_collection.delete_many({})
@@ -33,7 +37,8 @@ def get_and_save_countries_data():
     covid_collection.insert_one(save_to_db_global)
 
     save_to_db_data = []
-    details_keys = ["NewConfirmed", "TotalConfirmed", "NewDeaths", "TotalDeaths", "NewRecovered", "TotalRecovered", "Date"]
+    details_keys = ["NewConfirmed", "TotalConfirmed", "NewDeaths", "TotalDeaths", "NewRecovered", "TotalRecovered",
+                    "Date"]
     for country in countries_data:
         doc = {
             "Country": country["Country"],
@@ -41,7 +46,7 @@ def get_and_save_countries_data():
             "details": {k: v for k, v in country.items() if k in details_keys}
         }
         save_to_db_data.append(doc)
-    
+
     covid_collection.insert_many(save_to_db_data)
 
 
@@ -50,6 +55,7 @@ class MongoObjectJsonEncoder(json.JSONEncoder):
     We need to use a extended JsonEncoder that can handle
     ObjectId coming from mongodb in each document.
     """
+
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
