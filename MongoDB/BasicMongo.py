@@ -6,25 +6,29 @@ from bson import ObjectId
 from dotenv import load_dotenv
 import os
 
-env = load_dotenv("./.env")
-connection_str = "mongodb+srv://{}:{}@cluster0.ekhk0.mongodb.net/{}?retryWrites=true&w=majority"
-cluster = MongoClient(connection_str.format(os.getenv("MONGO_DB_USERNAME"),
-                                            os.getenv("MONGO_DB_PASSWORD"),
-                                            os.getenv("MONGO_DB_NAME")))
+load_dotenv("./.env")
+conn_str = \
+    "mongodb+srv://{username}:{password}@{clustername}.ekhk0.mongodb.net/" \
+    "{dbname}?retryWrites=true&w=majority"
+cluster = MongoClient(conn_str.format(username=os.getenv("MONGODB_USERNAME"),
+                                      password=os.getenv("MONGODB_PASSWORD"),
+                                      clustername=os.getenv("MONGODB_CLUSTER_NAME"),
+                                      dbname=os.getenv("MONGODB_NAME")))
 
-db = cluster[os.getenv("MONGO_DB_NAME")]  # getting the database
+db = cluster[os.getenv("MONGODB_NAME")]  # getting the database
 covid_collection = db.covid  # getting the collection
 
-
 # delete everything in the collection
-# covid_collection.delete_many({})
+covid_collection.delete_many({})
 
 
 def get_and_save_countries_data():
     try:
         headers = {"X-Access-Token": "5cf9dfd5-3449-485e-b5ae-70a60e997864"}
-        summary: Dict = requests.get("https://api.covid19api.com/summary", headers=headers).json()
+        summary: Dict = requests.get("https://api.covid19api.com/summary",
+                                     headers=headers).json()
     except Exception as ex:
+        # if you want to retry or give some specific message
         raise ex
 
     global_data = summary.get("Global")
@@ -34,19 +38,24 @@ def get_and_save_countries_data():
         "Country": "Global",
         "details": global_data
     }
+
+    # how to add a single document (a dictionary in Python) to the collection
     covid_collection.insert_one(save_to_db_global)
 
     save_to_db_data = []
-    details_keys = ["NewConfirmed", "TotalConfirmed", "NewDeaths", "TotalDeaths", "NewRecovered", "TotalRecovered",
-                    "Date"]
+    data_keys = ["NewConfirmed", "TotalConfirmed",
+                 "NewDeaths", "TotalDeaths",
+                 "NewRecovered", "TotalRecovered",
+                 "Date"]
     for country in countries_data:
         doc = {
             "Country": country["Country"],
             "CountryCode": country["CountryCode"],
-            "details": {k: v for k, v in country.items() if k in details_keys}
+            "data": {k: v for k, v in country.items() if k in data_keys}
         }
         save_to_db_data.append(doc)
 
+    # how to add multiple documents (list of dictionaries) to the collection
     covid_collection.insert_many(save_to_db_data)
 
 
@@ -55,7 +64,6 @@ class MongoObjectJsonEncoder(json.JSONEncoder):
     We need to use a extended JsonEncoder that can handle
     ObjectId coming from mongodb in each document.
     """
-
     def default(self, o):
         if isinstance(o, ObjectId):
             return str(o)
