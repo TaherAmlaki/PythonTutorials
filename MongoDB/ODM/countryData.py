@@ -9,7 +9,7 @@ class CountryData(mongoengine.EmbeddedDocument):
     TotalDeaths = mongoengine.IntField(required=True, db_field="TotalDeaths")
     NewRecovered = mongoengine.IntField(required=True, db_field="NewRecovered")
     TotalRecovered = mongoengine.IntField(required=True, db_field="TotalRecovered")
-    Date = mongoengine.DateTimeField(default=datetime.now, db_field="Date")
+    Date = mongoengine.DateTimeField(default=datetime.utcnow, db_field="Date")
 
     meta = {
         "db_alias": "core",
@@ -24,5 +24,5 @@ class CountryData(mongoengine.EmbeddedDocument):
             "TotalDeaths": self.TotalDeaths,
             "NewRecovered": self.NewRecovered,
             "TotalRecovered": self.TotalRecovered,
-            "Date": self.Date  #.strftime("%Y-%m-%d")
+            "Date": self.Date.strftime("%Y-%m-%d")
         }

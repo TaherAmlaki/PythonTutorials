@@ -1,10 +1,8 @@
 import mongoengine
-import json
 from ODM.countryData import CountryData
-from ODM.MyJsonEncoder import MongoObjectJsonEncoder
 
 
-class CountryReport(mongoengine.Document):
+class CountryReport(mongoengine.DynamicDocument):
     Country = mongoengine.StringField(required=True, db_field="Country")
     CountryCode = mongoengine.StringField(required=True, db_field="CountryCode")
 
@@ -22,11 +20,3 @@ class CountryReport(mongoengine.Document):
     @classmethod
     def find_by_country_code(cls, country_code):
         return cls.objects().filter(CountryCode=country_code).first()
-
-    def to_json(self):
-        data = {
-            "Country": self.Country,
-            "CountryCode": self.CountryCode,
-            "data": self.data.to_dict() if self.data is not None else None
-        }
-        return json.dumps(data, indent=4, ensure_ascii=True, cls=MongoObjectJsonEncoder)
