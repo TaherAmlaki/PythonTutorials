@@ -7,15 +7,11 @@ from pathlib import Path
 
 import requests
 
-from WireMockTutorial.Utils import WIREMOCK_URL, response_to_json, logger
+from WireMockTutorial.Utils import WireMockUrls, response_to_json, logger
 from WireMockTutorial.Utils.wm_exceptions import WireMockStartException, WireMockConnectionException
 
 
 class WireMockContext:
-    MAPPINGS_URL = "/__admin/mappings"
-    RESET_URL = "/__admin/reset"
-    SHUTDOWN_URL = "/__admin/shutdown"
-
     def __init__(self, jar_location: str, root_dir: str, port: int = 9999, verbose: bool = True):
         self.jar_location = Path(jar_location).absolute()
         self.root_dir = Path(root_dir).absolute()
@@ -24,35 +20,43 @@ class WireMockContext:
             self.command += "--verbose"
 
     def __enter__(self):
-        process = Popen(self.command.split(), stdout=PIPE, stderr=STDOUT)
-        # return iter(process.stdout.readline, b"")
+        p = Popen(self.command.split(), stdout=PIPE, stderr=STDOUT)
+        result = next(iter(p.stdout.readline, b"")).decode("utf-8")
+        if result.startswith("Error"):
+            raise WireMockStartException("Error occurred trying to start WireMock Process."
+                                         f"\n\tDetail: {result}")
+        logger.warning("WireMock Server is running ...")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type:
-            raise WireMockStartException(f"Error while running WireMock: {exc_type}: {exc_val}")
+            logger.exception(f"Error while running WireMock: {exc_type.__name__}: {exc_val}")
         self.reset_mappings_and_requests_log()
         self.shutdown_wire_mock()
         return False
 
-    def check_wiremock_running(self):
+    @classmethod
+    def check_wiremock_running(cls):
         try:
-            res = requests.get(f"{WIREMOCK_URL}{self.MAPPINGS_URL}")
+            res = requests.get(WireMockUrls.MAPPINGS_URL)
             if res.status_code < 400:
-                logger.info("WireMock Service is running.")
+                logger.info("WireMock Server is running.")
             else:
                 raise WireMockConnectionException
         except requests.exceptions.ConnectionError:
-            raise WireMockConnectionException("ConnectionError when tried to connect to WireMock Service.")
+            raise WireMockConnectionException("ConnectionError when tried to connect to WireMock Server.")
         except WireMockConnectionException:
-            raise WireMockConnectionException("WireMock Service is not running.")
+            raise WireMockConnectionException("WireMock Server is not running.")
 
-    def reset_mappings_and_requests_log(self):
-        res = requests.post(f"{WIREMOCK_URL}{self.RESET_URL}")
+    @classmethod
+    def reset_mappings_and_requests_log(cls):
+        res = requests.post(WireMockUrls.RESET_URL)
         return res.status_code < 400
 
-    def shutdown_wire_mock(self):
-        res = requests.post(f"{WIREMOCK_URL}{self.SHUTDOWN_URL}", data=None)
+    @classmethod
+    def shutdown_wire_mock(cls):
+        res = requests.post(WireMockUrls.SHUTDOWN_URL, data=None)
         if 400 <= res.status_code:
-            raise WireMockConnectionException(f"Failed to shutdown WireMock Service.: {response_to_json(res)}")
-        logger.info("WireMock Service was shutdown successfully.")
+            raise WireMockConnectionException("Failed to shutdown WireMock Server.: "
+                                              f"{response_to_json(res)}")
+        logger.warning("WireMock Server was shutdown successfully.")
