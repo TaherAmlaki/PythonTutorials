@@ -19,10 +19,11 @@ class WireMockContext:
                        f"--global-response-templating --root-dir {root_dir}"
         if verbose:
             self.command += " --verbose"
+        self.process = None
 
     def __enter__(self):
-        p = Popen(self.command.split(), stdout=PIPE, stderr=STDOUT)
-        result = next(iter(p.stdout.readline, b"")).decode("utf-8")
+        self.process = Popen(self.command.split(), stdout=PIPE, stderr=STDOUT)
+        result = next(iter(self.process.stdout.readline, b"")).decode("utf-8")
         if result.startswith("Error"):
             raise WireMockStartException("Error occurred trying to start WireMock Process."
                                          f"\n\tDetail: {result}")
@@ -33,7 +34,10 @@ class WireMockContext:
         if exc_type:
             logger.exception(f"Error while running WireMock: {exc_type.__name__}: {exc_val}")
         self.shutdown_wire_mock()
-        return False
+        try:
+            self.process.terminate()
+        finally:
+            return False
 
     @classmethod
     def check_wiremock_running(cls):
