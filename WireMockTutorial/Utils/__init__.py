@@ -12,9 +12,10 @@ class WireMockUrls:
     SHUTDOWN_URL = f"{WIREMOCK_URL}/__admin/shutdown"
 
 
-def set_logger():
+def set_logger(log_level="INFO"):
     wm_logger = logging.getLogger("WMLogger")
-    wm_logger.setLevel(logging.INFO)
+    log_level = logging.getLevelName(log_level)
+    wm_logger.setLevel(log_level)
 
     formatter = logging.Formatter("%(asctime)s:%(name)s:%(filename)s(%(lineno)d):%(levelname)s: %(message)s")
 
