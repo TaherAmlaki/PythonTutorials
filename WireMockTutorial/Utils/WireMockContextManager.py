@@ -6,7 +6,7 @@ from subprocess import PIPE, Popen, STDOUT
 from pathlib import Path
 
 from WireMockTutorial.Utils import logger
-from WireMockTutorial.Utils.wm_exceptions import WireMockStartException
+from WireMockTutorial.Utils.wm_exceptions import WireMockStartException, WireMockConnectionException
 from WireMockTutorial.Utils.WireMockCommunication import WireMockManager
 
 
@@ -19,22 +19,32 @@ class WireMockContext:
                        f"--global-response-templating --root-dir {root_dir}"
         if verbose:
             self.command += " --verbose"
-        self.process = None
+        self._process = None
 
     def __enter__(self):
-        self.process = Popen(self.command.split(), stdout=PIPE, stderr=STDOUT)
-        result = next(iter(self.process.stdout.readline, b"")).decode("utf-8")
-        if result.startswith("Error"):
-            raise WireMockStartException("Error occurred trying to start WireMock Process."
-                                         f"\n\tDetail: {result}")
-        WireMockManager.check_wiremock_running()
-        return self
+        self._process = Popen(self.command.split(), stdout=PIPE, stderr=STDOUT)
+        result = next(iter(self._process.stdout.readline, b"")).decode("utf-8")
+        if result and result.strip().startswith("Error"):
+            try:
+                self._process.terminate()
+            finally:
+                raise WireMockStartException("Error occurred trying to start WireMock Process."
+                                             f"\n\tDetail: {result}")
+        try:
+            WireMockManager.check_wiremock_running()
+        except WireMockConnectionException:
+            self._process.terminate()
+            raise
+        else:
+            return WireMockManager()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type:
             logger.exception(f"Error while running WireMock: {exc_type.__name__}: {exc_val}")
-        WireMockManager.shutdown_wiremock()
         try:
-            self.process.terminate()
+            WireMockManager.shutdown_wiremock()
         finally:
-            return False
+            try:
+                self._process.terminate()
+            finally:
+                return False

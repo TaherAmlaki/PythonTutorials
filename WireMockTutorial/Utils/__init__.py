@@ -5,6 +5,9 @@ from WireMockTutorial.Utils.wm_exceptions import WireMockConnectionException
 from WireMockTutorial.Utils.toJson import response_to_json
 
 
+DEFAULT_LOG_FORMAT = "%(asctime)s:%(name)s:%(filename)s(%(lineno)d):%(levelname)s: %(message)s"
+
+
 class WireMockUrls:
     WIREMOCK_URL = "http://127.0.0.1:9999"
     MAPPINGS_URL = f"{WIREMOCK_URL}/__admin/mappings"
@@ -12,14 +15,14 @@ class WireMockUrls:
     SHUTDOWN_URL = f"{WIREMOCK_URL}/__admin/shutdown"
 
 
-def set_logger(log_level="INFO"):
+def set_logger(log_level="INFO", log_msg_format=DEFAULT_LOG_FORMAT):
     wm_logger = logging.getLogger("WMLogger")
     log_level = logging.getLevelName(log_level)
     wm_logger.setLevel(log_level)
 
-    formatter = logging.Formatter("%(asctime)s:%(name)s:%(filename)s(%(lineno)d):%(levelname)s: %(message)s")
+    formatter = logging.Formatter(log_msg_format)
 
-    file_handler = logging.FileHandler("wm.log", mode="w")
+    file_handler = logging.FileHandler("wm.log", mode="a")
     file_handler.setFormatter(formatter)
     wm_logger.addHandler(file_handler)
 
