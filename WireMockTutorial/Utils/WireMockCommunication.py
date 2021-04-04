@@ -45,6 +45,11 @@ class WireMockManager:
         return res.status_code < 400
 
     @classmethod
+    def reset_mappings(cls):
+        res = requests.post(WireMockUrls.MAPPINGS_RESET_URL)
+        return res.status_code < 400
+
+    @classmethod
     def shutdown_wiremock(cls):
         res = requests.post(WireMockUrls.SHUTDOWN_URL, data=None)
         if 400 <= res.status_code:

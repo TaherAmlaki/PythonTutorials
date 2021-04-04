@@ -9,8 +9,6 @@ root_path = "./wireMockRoot"
 test_url = "/pythonTest"
 
 with WireMockContext(wiremock_jar_path, root_path) as wm:
-    wm.reset_mappings_and_requests_log()
-
     """ Let's put some simple stub which return Hello Multiverse for every request """
     wm.set_new_data_in_wm(test_url, body="Hello Multiverse!")
 

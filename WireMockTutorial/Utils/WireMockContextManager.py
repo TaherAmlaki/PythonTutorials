@@ -32,6 +32,7 @@ class WireMockContext:
                                              f"\n\tDetail: {result}")
         try:
             WireMockManager.check_wiremock_running()
+            WireMockManager.reset_mappings()
         except WireMockConnectionException:
             self._process.terminate()
             raise

@@ -12,6 +12,7 @@ class WireMockUrls:
     WIREMOCK_URL = "http://127.0.0.1:9999"
     MAPPINGS_URL = f"{WIREMOCK_URL}/__admin/mappings"
     RESET_URL = f"{WIREMOCK_URL}/__admin/reset"
+    MAPPINGS_RESET_URL = MAPPINGS_URL + "/reset"
     SHUTDOWN_URL = f"{WIREMOCK_URL}/__admin/shutdown"
 
 
@@ -20,9 +21,9 @@ def set_logger(log_level="INFO", log_msg_format=DEFAULT_LOG_FORMAT):
     log_level = logging.getLevelName(log_level)
     wm_logger.setLevel(log_level)
 
-    formatter = logging.Formatter(log_msg_format)
+    formatter = logging.Formatter(fmt=log_msg_format, datefmt="%y-%m-%d %H:%M:%S")
 
-    file_handler = logging.FileHandler("wm.log", mode="a")
+    file_handler = logging.FileHandler("./wm.log", mode="a")
     file_handler.setFormatter(formatter)
     wm_logger.addHandler(file_handler)
 
