@@ -5,7 +5,6 @@ from . import WireMockUrls, WireMockConnectionException, response_to_json, logge
 
 
 class WireMockManager:
-
     @classmethod
     def set_new_data_in_wm(cls, url, headers=None, body=None,
                            method="POST", status_code=200):
