@@ -13,7 +13,10 @@ class DotDict(MutableMapping):
             setattr(self, arg, None)
 
     def __getitem__(self, key):
-        return getattr(self, self.__convert_key(key))
+        try:
+            return getattr(self, self.__convert_key(key))
+        except AttributeError:
+            raise KeyError(key)
 
     def __setattr__(self, prop: str, value):
         if prop == "_DotDict__data":
