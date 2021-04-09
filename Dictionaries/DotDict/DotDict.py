@@ -55,24 +55,25 @@ class DotDict(MutableMapping):
 
     @classmethod
     def __convert_key(cls, key):
-        key = re.sub(r'^\d+', '', str(key).lower()).strip()
+        key = re.sub(r'^\d+', '', str(key)).strip()
         return re.sub(r'\W+', '_', key)
 
     @classmethod
     def create_prop_obj_for_list_recursively(cls, value):
+        # this method could be a static method, I just don't like static methods in Python
         if isinstance(value, (list, tuple)):
             prop_obj = []
             for v in value:
                 prop_obj.append(cls.create_prop_obj_for_list_recursively(v))
         elif isinstance(value, Mapping):
-            prop_obj = DotDict(**value)
+            prop_obj = cls(**value)
         else:
             prop_obj = value
         return prop_obj
 
     @classmethod
     def call_to_dict_recursively(cls, value):
-        if isinstance(value, DotDict):
+        if isinstance(value, cls):
             return value.to_dict()
         elif isinstance(value, (list, tuple)):
             result = []

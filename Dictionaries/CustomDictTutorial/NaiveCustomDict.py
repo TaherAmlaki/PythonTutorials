@@ -1,15 +1,19 @@
 import re
+import json
 
 
 class StringKeyDict:
-    def __init__(self):
-        self._data = {}
+    def __init__(self, **kwargs):
+        self._data = dict(**kwargs)
 
     def __setitem__(self, key, value):
         self._data[self.__convert_key(key)] = value
 
     def __getitem__(self, key):
         return self._data[self.__convert_key(key)]
+
+    def __str__(self):
+        return json.dumps(self._data, indent=4, ensure_ascii=True)
 
     @classmethod
     def __convert_key(cls, key):
@@ -19,11 +23,10 @@ class StringKeyDict:
 d = StringKeyDict()
 d[6] = "Six"
 d["My Key"] = "My Value"
-print(d._data)  # {'6': 'Six', 'My_Key': 'My Value'}
-
+print(d)
 """
-We might start implementing a dictionary-like class to always convert keys to string
-We can use bracket notation for setting and getting items, but we do not have get, update, pop, popitem, and 
-views keys() and items()
-available
+{
+    "6": "Six",
+    "My_Key": "My Value"
+}
 """

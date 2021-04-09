@@ -24,10 +24,10 @@ class TestDotDictImplementation(unittest.TestCase):
         d = DotDict(a={"k1": "v1", "k2": "v2"})
         d["Key With Space"] = "value"
         d["12 Key With Digits"] = "digits"
-        self.assertTrue("key_with_space" in d)
-        self.assertEqual(d.key_with_space, "value")
-        self.assertTrue("key_with_digits" in d)
-        self.assertEqual(d.key_with_digits, "digits")
+        self.assertTrue("Key_With_Space" in d)
+        self.assertEqual(d.Key_With_Space, "value")
+        self.assertTrue("Key_With_Digits" in d)
+        self.assertEqual(d.Key_With_Digits, "digits")
 
     def test_assign_values_as_dict_list_dotdict(self):
         d = DotDict()
