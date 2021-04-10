@@ -7,15 +7,14 @@ from Dictionaries.DotDict.DotDict import DotDict
 
 class TestDotDictImplementation(unittest.TestCase):
     def test_dotdict_initialization(self):
-        d = DotDict("a", b=21, c={"k1": "v1", "k2": "v2"})
+        d = DotDict(b=21, c={"k1": "v1", "k2": "v2"})
 
-        expected_dict = {'b': 21, 'c': {'k1': 'v1', 'k2': 'v2'}, 'a': None}
+        expected_dict = {'b': 21, 'c': {'k1': 'v1', 'k2': 'v2'}}
         self.assertDictEqual(d.to_dict(), expected_dict)
 
         expected_str = json.dumps(expected_dict, indent=4)
         self.assertEqual(str(d), expected_str)
 
-        self.assertEqual(d.a, None)
         self.assertEqual(d.b, 21)
         self.assertEqual(d.c.k1, "v1")
         self.assertEqual(d.c.k2, "v2")
@@ -74,7 +73,7 @@ class TestDotDictImplementation(unittest.TestCase):
             self.assertEqual(key, next(iterator))
 
     def test_delete_item(self):
-        d = DotDict("k1", k2="value2")
+        d = DotDict(k2="value2")
         d.k3 = "value3"
         d.k4 = ["item4", {"item5": "value5"}, ["item6", {"item7": "value7"}]]
 
@@ -85,6 +84,6 @@ class TestDotDictImplementation(unittest.TestCase):
         self.assertFalse("item5" in d.k4[1])
 
         del d.k4[2][1].item7
-        expected_dict = {'k1': None, 'k3': 'value3', 'k4': ['item4', {}, ['item6', {}]]}
+        expected_dict = {'k3': 'value3', 'k4': ['item4', {}, ['item6', {}]]}
         expected_str = json.dumps(expected_dict, indent=4)
         self.assertEqual(expected_str, str(d))

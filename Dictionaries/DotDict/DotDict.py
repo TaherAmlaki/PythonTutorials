@@ -8,15 +8,18 @@ class DotDict(MutableMapping):
         self.__data = kwargs
         self.update(**kwargs)
 
-        for arg in args:
-            self.__data[arg] = None
-            setattr(self, arg, None)
-
     def __getitem__(self, key):
         try:
             return getattr(self, self.__convert_key(key))
         except AttributeError:
             raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        setattr(self, self.__convert_key(key), value)
+
+    def __delitem__(self, key):
+        del self.__data[self.__convert_key(key)]
+        del self.__dict__[self.__convert_key(key)]
 
     def __setattr__(self, prop: str, value):
         if prop == "_DotDict__data":
@@ -30,13 +33,6 @@ class DotDict(MutableMapping):
                 prop_obj = value
             super().__setattr__(prop, prop_obj)
             self.__data[prop] = value
-
-    def __setitem__(self, key, value):
-        setattr(self, self.__convert_key(key), value)
-
-    def __delitem__(self, key):
-        del self.__data[self.__convert_key(key)]
-        del self.__dict__[self.__convert_key(key)]
 
     def __iter__(self):
         iterator = iter(self.__dict__)
