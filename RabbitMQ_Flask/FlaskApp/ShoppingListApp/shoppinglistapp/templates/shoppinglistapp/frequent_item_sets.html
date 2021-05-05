@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if freq_item_sets %}
+        <div class="container">
+            <table class="table table-dark">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Item-Set</th>
+                    <th scope="col">Support</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for itemset in freq_item_sets %}
+                    <tr>
+                        <th scope="row">{{ loop.index }}</th>
+                        <td>{{ itemset.itemsets }}</td>
+                        <td>{{ itemset.support }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">Support?</h5>
+                    <p class="card-text">
+                        Support is percentage of shopping lists that contain the item-set to the total number of
+                        shopping lists.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    {% else %}
+        <div class="container">
+            <div class="card w-100">
+                <div class="card-body">
+                    <h5 class="card-title">No Item-Sets Available Yet</h5>
+                    <p class="card-text">
+                        There is no item in your shopping lists yet and therefore no information about items is available.
+                    </p>
+                    <a href="{{ url_for('site_views.add_shopping_list') }}" class="btn btn-primary">
+                        Add A New Shopping List
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock content %}
