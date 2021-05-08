@@ -1,5 +1,8 @@
 from datetime import datetime
+import mongoengine as me
+
 from ShoppingListApp.DB.postgresql import db
+from ShoppingListApp.DB.mongodb import mongodb as mdb
 from ShoppingListApp.DB.base_model import BaseModel
 
 
@@ -21,9 +24,7 @@ class ShoppingListModel(BaseModel):
     created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated = db.Column(db.DateTime, nullable=True)
     status = db.Column(db.String(15), default="created")
-
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-
     items = db.relationship('ItemModel',
                             secondary=ItemShop,
                             lazy='subquery',
@@ -45,3 +46,34 @@ class ItemModel(BaseModel):
     name = db.Column(db.String(50), nullable=False, primary_key=True)
     price = db.Column(db.Float(precision=2), nullable=True)
 
+#####################################################################################
+
+
+class FrequentItemSetModel(mdb.EmbeddedDocument):
+    itemsets = mdb.StringField()
+    support = mdb.StringField()
+
+    def __repr__(self):
+        return f"itemset={self.itemsets}, support={self.support}"
+
+
+class RuleResultModel(mdb.EmbeddedDocument):
+    antecedents = mdb.StringField()
+    consequents = mdb.StringField()
+    confidence = mdb.FloatField()
+    lift = mdb.FloatField()
+    leverage = mdb.FloatField()
+    conviction = mdb.FloatField()
+
+
+class AprioriResultModel(mdb.Document):
+    user_id = mdb.IntField()
+    frequentItemSets = mdb.ListField(mdb.EmbeddedDocumentField(FrequentItemSetModel))
+    rules = mdb.ListField(mdb.EmbeddedDocumentField(RuleResultModel))
+
+    @classmethod
+    def find_by_user_id(cls, user_id) -> "AprioriResultModel":
+        return cls.objects(user_id=user_id).first()
+
+    def get_frequent_itemsets(self):
+        return [item.to_dict() for item in self.frequentItemSets]

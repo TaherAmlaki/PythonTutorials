@@ -12,6 +12,16 @@ class Config:
     POSTGRES_HOST_NAME = os.environ.get("POSTGRES_HOST_NAME", "db")
     SQLALCHEMY_DATABASE_URI = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST_NAME}:{POSTGRES_PORT}/{POSTGRES_DB}"
 
+    MONGO_USERNAME = os.getenv('MONGO_INITDB_ROOT_USERNAME')
+    MONGO_PASSWORD = os.getenv('MONGO_INITDB_ROOT_PASSWORD')
+    MONGO_DATABASE = os.getenv('MONGO_INITDB_DATABASE')
+    MONGO_PORT = os.getenv('MONGODB_PORT')
+    MONGO_HOST = os.getenv('MONGODB_HOST')
+    MONGODB_SETTINGS = {
+        "host": f"mongodb://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DATABASE}?authSource=admin",
+        "connect": False
+    }
+
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True

@@ -6,11 +6,13 @@ from flask_login import current_user, login_required
 from flask_restful import Api
 from wtforms import FieldList, FormField
 
-from ShoppingListApp.shoppinglistapp.models import ShoppingListModel, ItemModel
+from ShoppingListApp.shoppinglistapp.models import ShoppingListModel, ItemModel, AprioriResultModel
 from ShoppingListApp.shoppinglistapp.forms import AddShoppingListForm, AddItemForm
-from .serializers import ShortShoppingListSchema
+from ShoppingListApp.shoppinglistapp import serializers
 from ShoppingListApp.shoppinglistapp.helpers import load_previous_data_to_add_shopping_list
-from .resources import ModifyShoppingListResource, basket_market_object
+from ShoppingListApp.shoppinglistapp.resources import ModifyShoppingListResource, basket_market_object
+from ShoppingListApp.rabbitmq import RpcClient
+
 
 site_views = Blueprint("site_views",
                        __name__,
@@ -18,7 +20,11 @@ site_views = Blueprint("site_views",
 
 shopping_list_api = Api(site_views)
 shopping_list_api.add_resource(ModifyShoppingListResource, "/modify_add_shopping_list")
-shopping_list_serializer = ShortShoppingListSchema()
+shopping_list_serializer = serializers.ShortShoppingListSchema()
+apriori_serializer = serializers.AprioriResultSchema()
+frequent_itemsets_serializer = serializers.FrequentItemSetSchema()
+rules_serializer = serializers.RuleResultSchema()
+rpc_client = RpcClient()
 
 
 @site_views.route("/")
@@ -60,9 +66,7 @@ def add_shopping_list():
             return render_template("shoppinglistapp/add_shopping_list.html",
                                    title="Add Shopping List", form=AddShoppingListForm())
         else:
-            print("serializer for shopping list => ", shopping_list_serializer.dump(list_obj))
-            # TODO: send this 'shopping_list_serializer.dump(list_obj)' to the RabbitMQ
-
+            rpc_client.send(shopping_list_serializer.dumps(list_obj))
             flash("New shopping list is saved.", 'info')
             return redirect(url_for("site_views.home"))
 
@@ -94,15 +98,8 @@ def delete_shopping_list(list_id):
         abort(403)
 
     the_list.delete_from_db()
-
-    # TODO: here I should start publishing serialized shopping list to RabbitMQ, with indication of delete
-    # basket_market_object.reset()
-    # basket_market_object.set_user_id(current_user.get_id())
-    # basket_market_object.process()
     the_list.status = "deleted"
-    # TODO: send this to RabbitMQ 'shopping_list_serializer.dump(the_list)'
-    print("serializing deleted list => ", shopping_list_serializer.dump(the_list))
-
+    rpc_client.send(shopping_list_serializer.dumps(the_list))
     flash(f"Deleted '{the_list.name}' successfully.", "info")
     return redirect(url_for("site_views.home"))
 
@@ -112,11 +109,14 @@ def delete_shopping_list(list_id):
 def get_frequent_item_sets():
     if not current_user.is_authenticated:
         abort(401)
-    basket_market_object.fit_model()
-    freq_item_sets = basket_market_object.frequent_item_sets
+    try:
+        model = AprioriResultModel.find_by_user_id(current_user.get_id())
+        frequent_itemsets = frequent_itemsets_serializer.dump(model.frequentItemSets, many=True)
+    except AttributeError:
+        frequent_itemsets = []
     return render_template("shoppinglistapp/frequent_item_sets.html",
                            title="Frequently Bought Items",
-                           freq_item_sets=freq_item_sets)
+                           freq_item_sets=frequent_itemsets)
 
 
 @site_views.route("/patterns")
@@ -124,8 +124,11 @@ def get_frequent_item_sets():
 def get_rules():
     if not current_user.is_authenticated:
         abort(401)
-    basket_market_object.fit_model()
-    rules = basket_market_object.rules
+    try:
+        model = AprioriResultModel.find_by_user_id(current_user.get_id())
+        rules = rules_serializer.dump(model.rules, many=True)
+    except AttributeError:
+        rules = []
     return render_template("shoppinglistapp/rules.html",
                            title="Shopping List Patterns",
                            rules=rules)
