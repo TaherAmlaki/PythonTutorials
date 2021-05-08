@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  postgresql:
+    image: 'postgres'
+    restart: on-failure
+    hostname: postgrehost
+    ports:
+      - '5002:5432'
+    volumes:
+      - data:/pgdata/data
+    env_file:
+      - ./env/postgresql.env
+  app:
+    build: ./app
+    volumes:
+      - ./app:/app/app   # in test
+      #- logs:/app/logs  # in production
+    env_file:
+      - ./env/app.env
+    depends_on:
+      - postgresql
+volumes:
+  data:
+  #logs:  # in production, with line 15
