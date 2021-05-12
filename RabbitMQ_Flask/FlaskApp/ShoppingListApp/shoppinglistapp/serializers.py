@@ -1,8 +1,8 @@
 from flask_marshmallow import Marshmallow
 from marshmallow_mongoengine import ModelSchema
 
-from ShoppingListApp.shoppinglistapp.models import (ShoppingListModel, ItemModel,
-                                                    AprioriResultModel, FrequentItemSetModel, RuleResultModel)
+from .models import (ShoppingListModel, ItemModel,
+                     AprioriResultModel, FrequentItemSetModel, RuleResultModel)
 
 ma = Marshmallow()
 
@@ -42,4 +42,3 @@ class RuleResultSchema(ModelSchema):
 class AprioriResultSchema(ModelSchema):
     class Meta:
         model = AprioriResultModel
-

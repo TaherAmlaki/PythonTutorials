@@ -1,9 +1,8 @@
 from datetime import datetime
-import mongoengine as me
 
-from ShoppingListApp.DB.postgresql import db
-from ShoppingListApp.DB.mongodb import mongodb as mdb
-from ShoppingListApp.DB.base_model import BaseModel
+from ShoppingListApp.db import postgredb as db
+from ShoppingListApp.db import mongodb as mdb
+from ShoppingListApp.db.base_model import BaseModel
 
 
 ItemShop = db.Table(

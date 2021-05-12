@@ -1,6 +1,6 @@
 from typing import List
 
-from ShoppingListApp.DB.postgresql import db
+from . import postgredb as db
 
 
 class BaseModel(db.Model):

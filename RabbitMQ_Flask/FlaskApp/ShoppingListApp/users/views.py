@@ -2,9 +2,8 @@ from flask import (Blueprint, render_template, flash,
                    redirect, url_for, request)
 from flask_login import login_user, logout_user, current_user, login_required
 
-from ShoppingListApp.users.models import UserModel
+from . import UserModel, RegistrationForm, LoginForm, ResetPasswordForm
 
-from .forms import RegistrationForm, LoginForm, ResetPasswordForm
 
 user_views = Blueprint("user_views",
                        __name__,

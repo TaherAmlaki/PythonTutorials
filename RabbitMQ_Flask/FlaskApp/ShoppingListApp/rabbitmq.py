@@ -1,13 +1,12 @@
 import os
 import pika
 from uuid import uuid4
-import json
 
 from pymongo.errors import ServerSelectionTimeoutError
 from marshmallow.exceptions import ValidationError
 
-from ShoppingListApp import logger
-from ShoppingListApp.shoppinglistapp.serializers import AprioriResultSchema
+from . import logger
+from .shoppinglistapp import AprioriResultSchema
 
 
 class RpcClient:

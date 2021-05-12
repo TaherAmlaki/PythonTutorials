@@ -3,7 +3,6 @@ from flask import session, url_for
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
 
-from .basketModel.aprioriModel import AprioriModel
 
 help_msg = "Modifying shopping list without '{}' is not possible."
 
@@ -12,8 +11,6 @@ modify_parser.add_argument('action', type=str, required=True, help=help_msg.form
 modify_parser.add_argument('url', type=str, required=True, help=help_msg.format("url"))
 modify_parser.add_argument('form', type=dict, required=True, help=help_msg.format("form"))
 modify_parser.add_argument('itemIndex', type=str, required=False)
-
-basket_market_object = AprioriModel()
 
 
 class ModifyShoppingListResource(Resource):

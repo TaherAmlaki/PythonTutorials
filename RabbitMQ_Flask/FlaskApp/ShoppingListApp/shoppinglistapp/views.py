@@ -6,12 +6,13 @@ from flask_login import current_user, login_required
 from flask_restful import Api
 from wtforms import FieldList, FormField
 
-from ShoppingListApp.shoppinglistapp.models import ShoppingListModel, ItemModel, AprioriResultModel
-from ShoppingListApp.shoppinglistapp.forms import AddShoppingListForm, AddItemForm
-from ShoppingListApp.shoppinglistapp import serializers
-from ShoppingListApp.shoppinglistapp.helpers import load_previous_data_to_add_shopping_list
-from ShoppingListApp.shoppinglistapp.resources import ModifyShoppingListResource, basket_market_object
 from ShoppingListApp.rabbitmq import RpcClient
+
+from .models import ShoppingListModel, ItemModel, AprioriResultModel
+from .forms import AddShoppingListForm, AddItemForm
+from . import serializers
+from .helpers import load_previous_data_to_add_shopping_list
+from .resources import ModifyShoppingListResource
 
 
 site_views = Blueprint("site_views",

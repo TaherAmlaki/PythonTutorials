@@ -1,9 +1,10 @@
 import bcrypt
 from flask_login import UserMixin
 
-from ShoppingListApp.DB.postgresql import db
-from ShoppingListApp.DB.base_model import BaseModel
-from ShoppingListApp.users.login import login_manager
+from ShoppingListApp.db import postgredb as db
+from ShoppingListApp.db import BaseModel
+
+from . import login_manager
 
 
 @login_manager.user_loader
