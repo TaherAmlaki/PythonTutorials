@@ -1,7 +1,7 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow_sqlalchemy.fields import Nested
 
-from app.models import ShoppingListModel, ItemModel
+from .models import ShoppingListModel, ItemModel
 
 
 class OnlyItemNameSchema(SQLAlchemyAutoSchema):

@@ -3,8 +3,8 @@ import os
 import pika
 
 from app.db.postgresql import Base, engine, session
-
 from app.rabbitmq_callback import on_request_received
+
 
 if __name__ == "__main__":
     Base.metadata.create_all(engine)

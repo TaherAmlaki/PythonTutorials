@@ -3,20 +3,17 @@ import json
 import pika
 import time
 
-from app import logger
-from app.db.postgresql import session
-from app.models import ShoppingListModel
-from app.serializers import shopping_list_serializer
+from . import logger
+from .db.postgresql import session
+from .models import ShoppingListModel
+from .serializers import shopping_list_serializer
 
-from app.basketModel import aprioriModel
+from .basketModel import aprioriModel
 
 
 def on_request_received(channel, method, properties, body):
     body = json.loads(body.decode("utf-8"))
-    logger.debug(f"channel is => {channel}")
-    logger.debug(f"message: {body}")
-    logger.debug(f"properties.correlation_id => {properties.correlation_id}")
-    logger.debug(f"properties.reply_to => {properties.reply_to}")
+    logger.debug(f"received message: {body}")
 
     shopping_list_obj = shopping_list_serializer.load(body, session=session)
 

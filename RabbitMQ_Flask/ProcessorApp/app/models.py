@@ -3,7 +3,7 @@ from typing import List
 from sqlalchemy import Column, Integer, String, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
 
-from app.db.postgresql import Base, session
+from .db.postgresql import Base, session
 
 
 ShoppingItem = Table(
