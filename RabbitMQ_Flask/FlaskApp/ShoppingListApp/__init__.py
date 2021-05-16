@@ -1,16 +1,29 @@
 from flask import Flask
+from dotenv import load_dotenv
 
-from .configs import get_config
+from .configs import Environment
 
-from .logging import logger
+from .log import logger
 
 ##############################################
 
 
-def create_app(environment="dev"):
-    app = Flask(__name__)
+def create_app(environment: str = "DEV"):
+    environment = Environment[environment]
+    if environment == Environment.TEST:
+        """ 
+        In test we do not run flask app inside Docker container, therefore we load env directly here.
+        Also should user docker-compose.yaml file only for test and for dev and prod user both docker-compose .yml and 
+        docker-compose.dev.yml 
+        """
+        load_dotenv("../env/shoppinglistapp.env")
 
-    app.config.from_object(get_config(environment))
+    app = Flask(__name__,
+                static_folder="./static",
+                template_folder="./templates",
+                instance_relative_config=True)
+
+    app.config.from_object(environment.conf_cls)
 
     # initializing databases
     from .db.postgresql import postgredb
