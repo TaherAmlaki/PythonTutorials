@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  webapp:
+    build: ./ShoppingListApp
+    restart: on-failure
+    ports:
+      - '5000:5000'
+    volumes:
+      - ./ShoppingListApp:/app/ShoppingListApp
+    env_file:
+      - ./env/shoppinglistapp.env
+    depends_on:
+      - postgresql
+      - mongodb
